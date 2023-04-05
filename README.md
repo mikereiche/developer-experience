@@ -7,9 +7,9 @@ This quickstart tutorial will review the basics of using Couchbase by building a
 
 git clone git@github.com:mikereiche/developer-experience
 
-###Edit the connection properties:
+### Edit the connection properties:
 
-cd developer-experience/java-examples
+cd developer-experience/java-examples  
 vi src/main/java/com/examples/demo/ConnectExample.java
 
 ### Execute 
