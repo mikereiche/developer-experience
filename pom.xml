@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.couchbase.client</groupId>
+    <artifactId>developer-experience</artifactId>
+    <version>0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+
+    <name>Couchbase Developer Examples</name>
+    <description>Examples for the Couchbase SDK</description>
+
+   <properties>
+     <java-client.version>3.4.4</java-client.version>
+     <log4j-slf4j-impl.version>2.19.0</log4j-slf4j-impl.version>
+   </properties>
+
+    <modules>
+        <module>java-examples</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+      			<manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Build-Time>${maven.build.timestamp}</Build-Time>
+                            <Automatic-Module-Name>com.couchbase.client.java.examples</Automatic-Module-Name>
+                        </manifestEntries>
+                        <manifestSections>
+                            <manifestSection>
+                                <!-- the part after couchbase- needs to match with the agent title in the env -->
+                                <name>couchbase-java-examples</name>
+                                <manifestEntries>
+                                    <Impl-Version>${project.version}</Impl-Version>
+                                    <Impl-Git-Revision>${buildNumber}</Impl-Git-Revision>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
