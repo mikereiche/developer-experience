@@ -14,7 +14,7 @@ vi src/main/java/com/examples/demo/ConnectExample.java
 
 ### Compile and Execute 
 
-mvn compile
+mvn compile   
 mvn exec:java
 
 
