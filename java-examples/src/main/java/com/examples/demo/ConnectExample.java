@@ -59,13 +59,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * 5) Get your access key from API Keys. The secret key is available only when the key is generated. If you have not
  * saved it, then generate a new key and save the secret key. <br>
  */
-public class ConnectSample {
+public class ConnectExample {
 
 	// Update this to your cluster
-	static String endpoint = null; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
+	static String endpoint = "cb.wu0rmi178-9xbq-x.cloud.couchbase.com"; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
 	static String bucketName = "my_bucket";
 	static String username = "user";
-	static String password = "Couch0base!";
+	static String password = "C0uchbase!";
   // User Input ends here.
 
 	static boolean tlsEnabled = true;
