@@ -14,6 +14,6 @@ vi src/main/java/com/examples/demo/ConnectExample.java
 
 ### Execute 
 
-mvn java:exec
+mvn exec:java
 
 
