@@ -12,8 +12,9 @@ git clone git@github.com:mikereiche/developer-experience
 cd developer-experience/java-examples  
 vi src/main/java/com/examples/demo/ConnectExample.java
 
-### Execute 
+### Compile and Execute 
 
+mvn compile
 mvn exec:java
 
 
