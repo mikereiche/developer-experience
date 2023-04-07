@@ -6,6 +6,7 @@ import com.example.demo.service.Hotel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/hotels")
+// txdemo2/txdemo/src/main/java/com/couchbase/txndemo/DemoApplication
+// jsonview - https://chrome.google.com/webstore/detail/jsonvue/chklaanhfefbnpoihckbnefhakgolnmc
+
 public class HotelController {
 
   private final Cluster cluster;
@@ -34,7 +38,7 @@ public class HotelController {
   public ResponseEntity<? extends Object> findHotelsByDescriptionAndLocation(
     @PathVariable("location") String location, @PathVariable("description") String desc) {
     try {
-      return ResponseEntity.ok(hotelService.findHotels(cluster, location, desc));
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(cluster, location, desc));
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
@@ -44,7 +48,7 @@ public class HotelController {
   @RequestMapping(value = "/{description}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<? extends Object> findHotelsByDescription(@PathVariable("description") String desc) {
     try {
-      return ResponseEntity.ok(hotelService.findHotels(cluster, desc));
+      return ResponseEntity.accepted().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(cluster, desc));
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
@@ -54,7 +58,7 @@ public class HotelController {
   @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<? extends Object> findAllHotels() {
     try {
-      return ResponseEntity.ok(hotelService.findAllHotels(cluster));
+      return ResponseEntity.accepted().cacheControl(CacheControl.noCache()).contentType(MediaType.APPLICATION_JSON).body(hotelService.findAllHotels(cluster));
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
