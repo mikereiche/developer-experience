@@ -62,10 +62,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ConnectExample {
 
 	// Update this to your cluster
-	static String endpoint = "cb.wu0rmi178-9xbq-x.cloud.couchbase.com"; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
-	static String bucketName = "my_bucket";
-	static String username = "user";
-	static String password = "C0uchbase!";
+	static String endpoint = "cb.daniel-wucmmh.sdk.cloud.couchbase.com"; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
+	static String bucketName = "daniel-wucmmh";
+	static String username = "qqulmR419fhfiEHFABFvinSXHzJRRjoU";
+	static String password = "o@cpPMlRjswkuwKNsqzJHXK2v4HJaKeeu%a1ZCI%750bKDuXfcf9NMo!2cABNqCe";
   // User Input ends here.
 
 	static boolean tlsEnabled = true;
@@ -84,13 +84,17 @@ public class ConnectExample {
 				.ioConfig(ioc -> ioc.enableDnsSrv(true)).build();
 
 		// Initialize the Connection
-		Cluster cluster = Cluster.connect(endpoint, ClusterOptions.clusterOptions(username, password).environment(env));
+		Cluster cluster = Cluster.connect("couchbases://"+endpoint, ClusterOptions.clusterOptions(username, password).environment(env));
 		Bucket bucket = cluster.bucket(bucketName);
-		bucket.waitUntilReady(Duration.parse("PT10S"));
+		try {
+			bucket.waitUntilReady(Duration.parse("PT10S"));
+		} catch(RuntimeException re){
+			re.printStackTrace();
+		}
 		Collection collection = bucket.defaultCollection();
 
-		cluster.queryIndexes().createPrimaryIndex(bucketName,
-				CreatePrimaryQueryIndexOptions.createPrimaryQueryIndexOptions().ignoreIfExists(true));
+		//cluster.queryIndexes().createPrimaryIndex(bucketName,
+		//		CreatePrimaryQueryIndexOptions.createPrimaryQueryIndexOptions().ignoreIfExists(true));
 
 		// Create a JSON Document
 		JsonObject arthur = JsonObject.create().put("name", "Arthur").put("email", "kingarthur@couchbase.com")
@@ -104,7 +108,7 @@ public class ConnectExample {
 		System.err.println(collection.get("u:king_arthur"));
 
 		// Perform a N1QL Query
-		QueryResult result = cluster.query(String.format("SELECT name FROM `%s` WHERE $1 IN interests", bucketName),
+		QueryResult result = cluster.query(String.format("SELECT name FROM `%s` WHERE $1 IN interests", "samples.airline"),
 				queryOptions().parameters(JsonArray.from("African Swallows")));
 
 		// Print each found Row

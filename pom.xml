@@ -13,12 +13,14 @@
     <description>Examples for the Couchbase SDK</description>
 
    <properties>
-     <java-client.version>3.4.4</java-client.version>
-     <log4j-slf4j-impl.version>2.19.0</log4j-slf4j-impl.version>
+       <java-client.version>3.4.4</java-client.version>
+       <log4j-slf4j-impl.version>2.19.0</log4j-slf4j-impl.version>
+       <buildNumber>1</buildNumber>
    </properties>
 
     <modules>
         <module>java-examples</module>
+        <module>java-web-examples</module>
     </modules>
 
     <build>
