@@ -49,7 +49,7 @@ public class Hotel {
                                                         final String description) {
 
         Scope scope = bucket.scope("samples");
-        QueryResult result = scope.query("SELECT * from hotel");
+        QueryResult result = scope.query("SELECT name, address, city, country, state, description from hotel limit 20");
 
         List<JsonObject> resultObjects = result.rowsAsObject();
         List<Map<String, Object>> data = new LinkedList<Map<String, Object>>();
