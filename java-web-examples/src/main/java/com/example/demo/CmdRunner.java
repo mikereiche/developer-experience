@@ -15,14 +15,15 @@
  */
 package com.example.demo;
 
-import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
+
+import com.example.demo.model.Result;
+import com.example.demo.service.HotelService;
 
 /**
  * Components of the type CommandLineRunner are called right after the application start up. So the method *run* is
@@ -33,66 +34,24 @@ import reactor.core.scheduler.Schedulers;
 @Component
 public class CmdRunner implements CommandLineRunner {
 
-	@Autowired AirlineGatesService airlineGatesService;
-
+  @Autowired HotelService hotelService;
 
 	@Override
 	public void run(String... strings) {
 
+    Result<List<Map<String, Object>>> hotels = null;
 
-    if(1==1){
-			return;
-		}
-		AirlineGates airlineGates1 = new AirlineGates("1", "JFK", "American Airlines", Long.valueOf(200)); //1
-		AirlineGates airlineGates2 = new AirlineGates("2", "JFK", "Lufthansa", Long.valueOf(200));
-		AirlineGates saved1 = airlineGatesService.save(airlineGates1);
-		AirlineGates saved2 = airlineGatesService.save(airlineGates2);
-		AirlineGates found1 = airlineGatesService.findById(saved1.getId()); //2
-		AirlineGates found2 = airlineGatesService.findById(saved2.getId());
-		System.err.println("initialized airlines");
-		System.err.println("  found before transferGates: " + found1);
-		System.err.println("  found before transferGates: " + found2);
-		System.err.println("this transferGates attempt will succeed");
-		// move 50 gates from airline1 to airline2
-		int gatesToTransfer=50;
-		airlineGatesService.transferGates(airlineGates1.getId(), airlineGates2.getId(), gatesToTransfer, null); //3
-		found1 = airlineGatesService.findById(saved1.getId());
-		found2 = airlineGatesService.findById(saved2.getId());
-		System.err.println("  found after  transferGates: " + found1); //4
-		System.err.println("  found after  transferGates: " + found2);
-		Assert.isTrue(found1.getGates().equals(airlineGates1.getGates()-gatesToTransfer), "should have transferred");
-		Assert.isTrue(found2.getGates().equals(airlineGates1.getGates()+gatesToTransfer), "should have transferred");
-		System.err.println("this transferGates attempt will fail");
-		// attempt to move 44 gates from airline1 to airline2, but it fails.
-		try {
-			// 5
-			airlineGatesService.transferGates(airlineGates1.getId(), airlineGates2.getId(), 44, new SimulateErrorException());
-		} catch (RuntimeException rte) {
-			//if (!(rte instanceof TransactionSystemUnambiguousException) && rte != null
-			//		&& rte.getCause() instanceof SimulateErrorException) {
-			//	throw rte;
-			//}
-			System.err.println("  got exception "+rte);
-		}
-		System.err.println("  found after  transferGates: " + airlineGatesService.findById(airlineGates1.getId()));
-		System.err.println("  found after  transferGates: " + airlineGatesService.findById(airlineGates2.getId()));
-		Assert.isTrue(found1.getGates().equals(airlineGates1.getGates()-gatesToTransfer), "should be same as previous");
-		Assert.isTrue(found2.getGates().equals(airlineGates1.getGates()+gatesToTransfer), "should be same as previous");
-		System.err.println("this transferGates attempt will succeed");
-		try {
-			// 5
-			airlineGatesService.transferGatesReactive(airlineGates1.getId(), airlineGates2.getId(), 44, null).block();
-		} catch (RuntimeException rte) {
-			//if (!(rte instanceof TransactionSystemUnambiguousException) && rte != null
-			//		&& rte.getCause() instanceof SimulateErrorException) {
-			//	throw rte;
-			//}
-			System.err.println("  got exception "+rte);
-		}
-		System.err.println("  found after  transferGates: " + airlineGatesService.findById(airlineGates1.getId()));
-		System.err.println("  found after  transferGates: " + airlineGatesService.findById(airlineGates2.getId()));
-		Assert.isTrue(found1.getGates().equals(airlineGates1.getGates()-gatesToTransfer), "should have transferred");
-		Assert.isTrue(found2.getGates().equals(airlineGates1.getGates()+gatesToTransfer), "should have transferred");
+    try {
+      hotels = hotelService.findHotels("Camp", "California");
+    } catch (Exception e) {
+      System.err.println(e);
+    }
+    if( hotels != null) {
+      for (Map hotel : hotels.getData()) {
+        System.err.println("Hotels: " + hotel);
+      }
+    }
+
 	}
 
 	static class SimulateErrorException extends RuntimeException {}

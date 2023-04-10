@@ -15,21 +15,30 @@
  */
 package com.example.demo;
 
+import com.couchbase.client.core.cnc.LoggingEventConsumer;
+import com.couchbase.client.core.logging.LogRedaction;
+import com.couchbase.client.core.logging.RedactionLevel;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.ClusterOptions;
 import com.couchbase.client.java.env.ClusterEnvironment;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 
-import java.util.Properties;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.logging.Level;
+
 
 /**
  * @author Michael Reiche
  */
 @SpringBootApplication
+@RestController
+@RequestMapping("")
 public class DemoApplication {
 
 	static String endpoint = "cb.daniel-wucmmh.sdk.cloud.couchbase.com"; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
@@ -37,6 +46,7 @@ public class DemoApplication {
 	static String username = "qqulmR419fhfiEHFABFvinSXHzJRRjoU";
 	static String password = "o@cpPMlRjswkuwKNsqzJHXK2v4HJaKeeu%a1ZCI%750bKDuXfcf9NMo!2cABNqCe";
 	static boolean tlsEnabled = true;
+
 
 	@Bean
 	Bucket getBucket(Cluster cluster){
@@ -46,8 +56,13 @@ public class DemoApplication {
 	Cluster getCluster(){
 		ClusterEnvironment env = ClusterEnvironment.builder()
 			.securityConfig(sc -> sc.enableTls(tlsEnabled))
-			.ioConfig(ioc -> ioc.enableDnsSrv(true)).build();
+			.ioConfig(ioc -> ioc.enableDnsSrv(true))
+			//.loggerConfig(l -> l.consoleLogLevel(Level.ALL))
+			//.loggerConfig( l -> l.fallbackToConsole(true))
+			//.loggerConfig( l ->l.disableSlf4J(true))
+			.build();
 
+		//LogRedaction.setRedactionLevel(RedactionLevel.FULL);
 		// Initialize the Connection
 		return Cluster.connect(
 			"couchbases://"+"cb.daniel-wucmmh.sdk.cloud.couchbase.com",
@@ -59,6 +74,12 @@ public class DemoApplication {
 
 	public static void main(String[] args) {
  		SpringApplication.run( DemoApplication.class, args );
+	}
+
+
+	@GetMapping("/")
+	public String aaa_index() {
+		return "<a href=api/hotels>api/hotels</a>";
 	}
 
 }

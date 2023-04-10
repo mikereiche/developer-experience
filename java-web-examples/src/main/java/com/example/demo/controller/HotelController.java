@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 import com.couchbase.client.java.Cluster;
 
-import com.example.demo.model.IValue;
-import com.example.demo.service.Hotel;
+import com.example.demo.model.Result;
+import com.example.demo.service.HotelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,31 +14,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/hotels")
-// txdemo2/txdemo/src/main/java/com/couchbase/txndemo/DemoApplication
 // jsonview - https://chrome.google.com/webstore/detail/jsonvue/chklaanhfefbnpoihckbnefhakgolnmc
+public class HotelController extends Controller {
 
-public class HotelController {
-
-  private final Cluster cluster;
-  private final Hotel hotelService;
+  private final HotelService hotelService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HotelController.class);
   private static final String LOG_FAILURE_MESSAGE = "Failed with exception";
 
   @Autowired
-  public HotelController(Cluster cluster, Hotel hotelService) {
-    this.cluster = cluster;
+  public HotelController(HotelService hotelService) {
     this.hotelService = hotelService;
   }
 
   @RequestMapping(value = "/{description}/{location}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<? extends Object> findHotelsByDescriptionAndLocation(
-    @PathVariable("location") String location, @PathVariable("description") String desc) {
+     @PathVariable("description") String desc, @PathVariable("location") String location) {
     try {
-      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(cluster, location, desc));
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(desc, location));
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
@@ -48,7 +47,7 @@ public class HotelController {
   @RequestMapping(value = "/{description}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<? extends Object> findHotelsByDescription(@PathVariable("description") String desc) {
     try {
-      return ResponseEntity.accepted().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(cluster, desc));
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hotelService.findHotels(desc));
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
@@ -58,11 +57,18 @@ public class HotelController {
   @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<? extends Object> findAllHotels() {
     try {
-      return ResponseEntity.accepted().cacheControl(CacheControl.noCache()).contentType(MediaType.APPLICATION_JSON).body(hotelService.findAllHotels(cluster));
+      return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hotelService.findAllHotels());
     } catch (Exception e) {
       LOGGER.error(LOG_FAILURE_MESSAGE, e);
       return ResponseEntity.badRequest().body(new Error(e.getMessage()));
     }
   }
+
+  //@RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<? extends Object> old_findAllHotels() {
+      String body = doWorkAndValidate(() -> { Result<List<Map<String, Object>>> r = hotelService.findAllHotels(); log(r.getData().toString()); log(r.getContext());}, () -> {} );
+      return ResponseEntity.ok().cacheControl(CacheControl.noCache()).contentType(MediaType.TEXT_HTML).body(body);
+  }
+
 
 }

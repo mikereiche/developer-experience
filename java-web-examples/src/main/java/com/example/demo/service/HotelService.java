@@ -16,6 +16,7 @@ import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.Scope;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.kv.LookupInResult;
+import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
 import com.couchbase.client.java.search.SearchOptions;
 import com.couchbase.client.java.search.SearchQuery;
@@ -31,25 +32,42 @@ import org.springframework.stereotype.Service;
 
 
 @Service
-public class Hotel {
+public class HotelService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Hotel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HotelService.class);
 
     private Bucket bucket;
+    private Cluster cluster;
 
     @Autowired
-    public Hotel(Bucket bucket) {
+    public HotelService(Cluster cluster, Bucket bucket) {
+        this.cluster = cluster;
         this.bucket = bucket;
     }
 
     /**
      * Search for a hotel in a particular location.
      */
-    public Result<List<Map<String, Object>>> findHotels(final Cluster cluster, final String location,
-                                                        final String description) {
+    public Result<List<Map<String, Object>>> findHotels(final String description,
+                                                        final String location) {
 
         Scope scope = bucket.scope("samples");
-        QueryResult result = scope.query("SELECT name, address, city, country, state, description from hotel limit 20");
+        StringBuffer queryString = new StringBuffer("SELECT name, address, city, country, state, description from hotel");
+        QueryOptions queryOptions = QueryOptions.queryOptions().metrics(true);
+        JsonObject parameters = JsonObject.create();
+        if( !empty(location) ) {
+            queryString.append(" WHERE ");
+            queryString.append("(contains(country, $location) or contains(state, $location) or contains(city, $location))");
+            parameters.put("$location",location);
+        }
+        if( !empty(description) ) {
+            queryString.append(empty(location) ? " WHERE " : " AND ");
+            queryString.append("contains(description, $description)");
+            parameters.put("$description",description);
+        }
+        queryOptions.parameters(parameters);
+        queryString.append(" limit 20");
+        QueryResult result = scope.query(queryString.toString(), queryOptions);
 
         List<JsonObject> resultObjects = result.rowsAsObject();
         List<Map<String, Object>> data = new LinkedList<Map<String, Object>>();
@@ -60,7 +78,9 @@ public class Hotel {
         String querytype = "N1QL query - scoped to inventory: ";
 
         if(1==1)
-            return Result.of(data, querytype, null);
+            return Result.of(data, queryString.toString()+" "+parameters.toMap(),
+              "<br> execution : "+result.metaData().metrics().get().executionTime().toMillis()+
+              "<br> elapsed   : "+result.metaData().metrics().get().elapsedTime().toMillis());
 
 
         ConjunctionQuery fts = SearchQuery.conjuncts(SearchQuery.term("hotel").field("type"));
@@ -92,15 +112,15 @@ public class Hotel {
     /**
      * Search for an hotel.
      */
-    public Result<List<Map<String, Object>>> findHotels(final Cluster cluster, final String description) {
-        return findHotels(cluster, "*", description);
+    public Result<List<Map<String, Object>>> findHotels(final String description) {
+        return findHotels( description, "*");
     }
 
     /**
      * Find all hotels.
      */
-    public Result<List<Map<String, Object>>> findAllHotels(final Cluster cluster) {
-        return findHotels(cluster, "*", "*");
+    public Result<List<Map<String, Object>>> findAllHotels() {
+        return findHotels("*", "*");
     }
 
     /**
@@ -160,6 +180,10 @@ public class Hotel {
      */
     private static void logQuery(String query) {
         LOGGER.info("Executing FTS Query: {}", query);
+    }
+
+    private boolean empty(String s){
+        return s == null || s.length() == 0 || s.equals("*");
     }
 
 }
