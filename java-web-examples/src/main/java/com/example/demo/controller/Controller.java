@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
-import com.example.demo.model.Result;
+
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.CacheControl;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public class Controller {
+  public static final String GO_BACK = "Use browser Back button to go back";
   private String displayString = displayText();
   private long t0;
   private StringBuffer sb = new StringBuffer();
@@ -86,7 +87,7 @@ public class Controller {
         value = gm.value()[0];
       } else {
         RequestMapping rm = m.getAnnotation(RequestMapping.class);
-        if ( rm != null){
+        if ( rm != null && rm.value() != null && rm.value().length > 0){
           value = rm.value()[0];
         }
       }
@@ -94,7 +95,7 @@ public class Controller {
         s.append("<tr>");
         s.append("<td>");
         s.append("<a href=\"");
-        s.append(urlPrefix + classRequestValue + value);
+        s.append(urlPrefix + classRequestValue + value.replaceAll("\\{[^\\}]*\\}","*"));
         s.append("\">");
         s.append("."+value);
         s.append("</a>");
@@ -133,6 +134,21 @@ public class Controller {
   public ResponseEntity<? extends Object> index() {
     String body = doWorkAndValidate(() -> {}, () -> {} );
     return ResponseEntity.ok().cacheControl(CacheControl.noCache()).contentType(MediaType.TEXT_HTML).body(body);
+  }
+
+  @RequestMapping(value = "index", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<? extends Object> index2() {
+    return index();
+  }
+  /**
+   * Supports the HTML Error View
+   * @param request
+   * @return
+   */
+  @RequestMapping(value = "/error", produces = "text/html")
+  public String someError(HttpServletRequest request) {
+    return
+      "<a href=api/hotels>api/hotels</a><br>";
   }
 
 }

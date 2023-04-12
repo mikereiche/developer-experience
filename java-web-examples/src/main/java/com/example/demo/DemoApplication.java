@@ -15,23 +15,20 @@
  */
 package com.example.demo;
 
-import com.couchbase.client.core.cnc.LoggingEventConsumer;
-import com.couchbase.client.core.logging.LogRedaction;
-import com.couchbase.client.core.logging.RedactionLevel;
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.ClusterOptions;
-import com.couchbase.client.java.env.ClusterEnvironment;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.logging.Level;
-
+import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.ClusterOptions;
+import com.couchbase.client.java.Scope;
+import com.couchbase.client.java.env.ClusterEnvironment;
 
 /**
  * @author Michael Reiche
@@ -45,6 +42,7 @@ public class DemoApplication {
 	static String bucketName = "daniel-wucmmh";
 	static String username = "qqulmR419fhfiEHFABFvinSXHzJRRjoU";
 	static String password = "o@cpPMlRjswkuwKNsqzJHXK2v4HJaKeeu%a1ZCI%750bKDuXfcf9NMo!2cABNqCe";
+  static String scopeName = "samples";
 	static boolean tlsEnabled = true;
 
 
@@ -52,6 +50,11 @@ public class DemoApplication {
 	Bucket getBucket(Cluster cluster){
 		return cluster.bucket(bucketName);
 	}
+
+  @Bean
+  Scope getScope(Bucket bucket) {
+    return bucket.scope(scopeName);
+  }
 	@Bean
 	Cluster getCluster(){
 		ClusterEnvironment env = ClusterEnvironment.builder()
@@ -62,7 +65,6 @@ public class DemoApplication {
 			//.loggerConfig( l ->l.disableSlf4J(true))
 			.build();
 
-		//LogRedaction.setRedactionLevel(RedactionLevel.FULL);
 		// Initialize the Connection
 		return Cluster.connect(
 			"couchbases://"+"cb.daniel-wucmmh.sdk.cloud.couchbase.com",
@@ -79,7 +81,7 @@ public class DemoApplication {
 
 	@GetMapping("/")
 	public String aaa_index() {
-		return "<a href=api/hotels>api/hotels</a>";
-	}
+    return "<a href=api/hotels>api/hotels</a><br>";
+  }
 
 }

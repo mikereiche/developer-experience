@@ -12,5 +12,6 @@
     </root>
 
     <logger name="com.couchbase" level="info"/>"
+    <logger name="org" level="debug"/>"
 
 </configuration>
