@@ -78,10 +78,4 @@ public class DemoApplication {
  		SpringApplication.run( DemoApplication.class, args );
 	}
 
-
-	@GetMapping("/")
-	public String aaa_index() {
-    return "<a href=api/hotels>api/hotels</a><br>";
-  }
-
 }

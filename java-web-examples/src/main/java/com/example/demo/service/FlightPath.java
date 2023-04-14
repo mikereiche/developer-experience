@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.couchbase.client.core.error.QueryException;
 import com.couchbase.client.java.Scope;
 import com.couchbase.client.java.json.JsonArray;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
-
 import com.example.demo.model.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 
 @Service
@@ -29,6 +29,16 @@ public class FlightPath {
      */
     public static Result<List<Map<String, Object>>> findAll(final Scope scope, final String bucket, String from,
                                                             String to, Calendar leave) {
+
+      String unionQuery = "";
+      String fromAirport = null;
+      String toAirport = null;
+      boolean fromSameCase = (from.equals(from.toUpperCase()) || from.equals(from.toLowerCase()));
+      boolean toSameCase = (to.equals(to.toUpperCase()) || to.equals(to.toLowerCase()));
+      if (from.length() == 3 && to.length() == 3 && fromSameCase && toSameCase) {
+        fromAirport = from.toUpperCase();
+        toAirport = to.toUpperCase();
+      } else {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT faa as fromAirport ");
         builder.append("FROM airport ");
@@ -37,26 +47,25 @@ public class FlightPath {
         builder.append("SELECT faa as toAirport ");
         builder.append("FROM airport ");
         builder.append("WHERE airportname = $to");
-        String unionQuery = builder.toString();
+        unionQuery = builder.toString();
 
-        logQuery(unionQuery);
-        QueryResult result = null;
-        try {
-            result = scope.query(unionQuery, QueryOptions.queryOptions().raw("$from", from).raw("$to", to));
-        } catch (QueryException e) {
-            LOGGER.warn("Query failed with exception: " + e);
-            throw new DataRetrievalFailureException("Query error: " + result);
-        }
-
-        List<JsonObject> rows = result.rowsAsObject();
-        String fromAirport = null;
-        String toAirport = null;
-        for (JsonObject obj : rows) {
-            if (obj.containsKey("fromAirport")) {
-                fromAirport = obj.getString("fromAirport");
+            logQuery(unionQuery);
+            QueryResult result = null;
+            try {
+              result = scope.query(unionQuery, QueryOptions.queryOptions().raw("$from", from).raw("$to", to));
+            } catch (QueryException e) {
+              LOGGER.warn("Query failed with exception: " + e);
+              throw new DataRetrievalFailureException("Query error: " + result);
             }
-            if (obj.containsKey("toAirport")) {
+
+            List<JsonObject> rows = result.rowsAsObject();
+            for (JsonObject obj : rows) {
+              if (obj.containsKey("fromAirport")) {
+                fromAirport = obj.getString("fromAirport");
+              }
+              if (obj.containsKey("toAirport")) {
                 toAirport = obj.getString("toAirport");
+              }
             }
         }
 
@@ -73,7 +82,7 @@ public class FlightPath {
         JsonArray params = JsonArray.create();
         params.add(fromAirport);
         params.add(toAirport);
-        params.add(leave.get(Calendar.DAY_OF_WEEK));
+        params.add(leave.get(Calendar.DAY_OF_WEEK)-1); // DAY_OF_WEEK is 1-7,  routes are 0-6
 
         logQuery(joinQuery);
         QueryResult otherResult = null;
@@ -94,7 +103,7 @@ public class FlightPath {
         }
 
         String querytype = "N1QL query - scoped to inventory: ";
-        return Result.of(data, querytype, unionQuery, joinQuery);
+        return Result.of(data, querytype, unionQuery, joinQuery, params.toString());
     }
 
     /**
