@@ -23,7 +23,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.example.demo.model.Result;
-import com.example.demo.service.HotelService;
+import com.example.demo.service.Hotel;
 
 /**
  * Components of the type CommandLineRunner are called right after the application start up. So the method *run* is
@@ -34,7 +34,8 @@ import com.example.demo.service.HotelService;
 @Component
 public class CmdRunner implements CommandLineRunner {
 
-  @Autowired HotelService hotelService;
+  @Autowired
+  Hotel hotelService;
 
 	@Override
 	public void run(String... strings) {

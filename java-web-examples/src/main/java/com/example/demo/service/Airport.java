@@ -59,7 +59,7 @@ public class Airport {
         }
 
         String querytype = "N1QL query - scoped to inventory: ";
-        return Result.of(Controller.GO_BACK, data, builder+" "+params,
+        return Result.of( data, builder+" "+params,
           "\n execution : "+result.metaData().metrics().get().executionTime().toMillis()+
             "\n elapsed   : "+result.metaData().metrics().get().elapsedTime().toMillis()+
           "\n client    : "+(System.currentTimeMillis()-t0));
