@@ -47,7 +47,8 @@
             <artifactId>jackson-datatype-joda</artifactId>
             <version>${jackson-joda.version}</version>
         </dependency>
--->
+        -->
+
         <!-- for Capella Control Plane -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -104,27 +105,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-<!--
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>0.4.11</version>
-                <configuration>
-                    <imageName>trycb/java</imageName>
-                    <dockerDirectory>src/main/docker</dockerDirectory>
-                    <buildArgs>
-                        <finalName>${project.build.finalName}.jar</finalName>
-                    </buildArgs>
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.build.finalName}.jar</include>
-                        </resource>
-                    </resources>
-                </configuration>
-            </plugin>
--->
         </plugins>
     </build>
 

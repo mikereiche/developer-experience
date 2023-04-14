@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 public class Controller {
   public static final String GO_BACK = "Use browser Back button to go back";
@@ -81,21 +84,25 @@ public class Controller {
     }
     for (Method m : methods) {
 
-      String value = null;
+      StringBuffer value = new StringBuffer();
       GetMapping gm = m.getAnnotation(GetMapping.class);
       if (gm != null) {
-        value = gm.value()[0];
+       value.append(gm.value()[0]);
       } else {
         RequestMapping rm = m.getAnnotation(RequestMapping.class);
         if ( rm != null && rm.value() != null && rm.value().length > 0){
-          value = rm.value()[0];
+          value.append(rm.value()[0]);
         }
       }
-      if (value != null) {
+      for(Parameter param:m.getParameters()){
+            paramAppend(value,param);
+      }
+
+      if (!value.isEmpty()) {
         s.append("<tr>");
         s.append("<td>");
         s.append("<a href=\"");
-        s.append(urlPrefix + classRequestValue + value.replaceAll("\\{[^\\}]*\\}","*"));
+        s.append(urlPrefix + classRequestValue + value.toString().replaceAll("\\{[^\\}]*\\}","*"));
         s.append("\">");
         s.append("."+value);
         s.append("</a>");
@@ -106,6 +113,20 @@ public class Controller {
     s.append("</table>");
     displayString = s.toString();
     return displayString;
+  }
+
+  private void paramAppend(StringBuffer value, Parameter p) {
+    for(Annotation ann:p.getAnnotations())
+    if (ann instanceof RequestParam) {
+      RequestParam rp = (RequestParam) ann;
+      if (value.toString().contains("?")) {
+        value.append("&");
+      } else {
+        value.append("?");
+      }
+      value.append(rp.value().isEmpty() ? p.getName() : rp.value() );
+      value.append("=*");
+    }
   }
 
   public Object log(Object... args) {

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<script>
+    function callREST() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("response").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/api/hotels/pool/California/", true);
+        xhttp.send();
+    }
+
+    function setAction(form) {
+        const url = 'http://localhost:8080/api/hotels/';
+        console.log("desc"+form.desc.value);
+        if( form.desc.value == "")
+            from.desc.value = "*";
+        if(form.location.value == "")
+            from.location.value = "*";
+
+        const newUrl = url + form.desc.value + '/' + form.location.value + '/';
+        fetch(
+            newUrl,
+            {
+                headers: {"Content-Type": "application/json"},
+                method: "GET",
+            }
+        )
+            .then(data => data.json())
+            .then((json) => {
+                alert(JSON.stringify(json));
+                document.getElementById("form").reset();
+            });
+        return false;
+    }
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body>
+
+<table style="width:100%">
+    <tr>
+        <td></td>
+        <td style="width:5%">
+            <table>
+                <tr>
+                    <td><a href="index.html">Welcome</a></td>
+                </tr>
+                <tr>
+                    <td>Key_Value</td>
+                </tr>
+                <tr>
+                    <td><a href="query.html">Query</a></td>
+                </tr>
+                <tr>
+                    <td>Ottoman</td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table border="1" style="width:100%">
+                <tr>
+                    <td>
+                        <form id="form" onsubmit="return setAction(this)">
+                            <table style="width:90%">
+                                <tr>
+                                    <td style="width:100%">Welcome</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        A sample API for getting started with Couchbase Server and the Java SDK.
+                                        <li><a href=\"https://github.com/mikereiche/developer-experience\"> Find this on
+                                            GitHub </a>
+                                        <li><a href=\"/apidocs\"> Learn the API, interactively </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <nbsp></nbsp>
+        </td>
+        <td>
+            <nbsp></nbsp>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

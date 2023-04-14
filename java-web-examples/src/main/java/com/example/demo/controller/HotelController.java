@@ -64,11 +64,5 @@ public class HotelController extends Controller {
     }
   }
 
-  //@RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<? extends Object> old_findAllHotels() {
-      String body = doWorkAndValidate(() -> { Result<List<Map<String, Object>>> r = hotelService.findAllHotels(); log(r.getData().toString()); log(r.getContext());}, () -> {} );
-      return ResponseEntity.ok().cacheControl(CacheControl.noCache()).contentType(MediaType.TEXT_HTML).body(body);
-  }
-
 
 }

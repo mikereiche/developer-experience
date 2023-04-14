@@ -51,6 +51,7 @@ public class AppErrorController implements ErrorController {
   public /*ModelAndView*/  ResponseEntity<String> errorHtml(HttpServletRequest request) {
         //return new ModelAndView("/", getErrorAttributes(request, false));
     Map<String, Object> body = getErrorAttributes(request, getTraceParameter(request));
+    body.put("caught","AppErrorController");
     HttpStatus status = body.containsKey("status") ? HttpStatus.valueOf((int)(body.get("status"))) : getStatus(request);
     return new ResponseEntity<>(body.toString(), status);
   }
@@ -64,6 +65,7 @@ public class AppErrorController implements ErrorController {
   @ResponseBody
   public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
     Map<String, Object> body = getErrorAttributes(request, getTraceParameter(request));
+    body.put("caught","AppErrorController");
     HttpStatus status = getStatus(request);
     return new ResponseEntity<Map<String, Object>>(body, status);
   }
@@ -79,7 +81,7 @@ public class AppErrorController implements ErrorController {
   private Map<String, Object> getErrorAttributes(HttpServletRequest request,
                                                  boolean includeStackTrace) {
     RequestAttributes requestAttributes = new ServletRequestAttributes(request);
-    ErrorAttributeOptions options = ErrorAttributeOptions.of();
+    ErrorAttributeOptions options = ErrorAttributeOptions.of(ErrorAttributeOptions.Include.MESSAGE, ErrorAttributeOptions.Include.BINDING_ERRORS, ErrorAttributeOptions.Include.EXCEPTION);
     return this.errorAttributes.getErrorAttributes(new ServletWebRequest(request), options);
   }
 
