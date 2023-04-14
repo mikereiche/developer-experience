@@ -2,16 +2,6 @@
 
 <html lang="en">
 <script>
-    function callREST() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("response").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "http://localhost:8080/api/hotels/pool/California/", true);
-        xhttp.send();
-    }
 
     function setAction(form) {
         const url = 'http://localhost:8080/api/hotels/';
@@ -24,12 +14,18 @@
                 method: "GET",
             }
         )
-            .then(data => data.json())
+            .then(response => response.json())
             .then((json) => {
-                alert(JSON.stringify(json));
+                //alert(JSON.stringify(json));
                 document.getElementById("form").reset();
+                document.getElementById("myoutput").innerHTML = JSON.stringify(json.data, null, 3);
             });
         return false;
+    }
+
+    function getElements(response) {
+        $('.showHumidity').text(`The title ${response.data.title}%`);
+        $('.showTemp').text(`The name ${response.data.name} degrees.`);
     }
 </script>
 <head>
@@ -47,7 +43,7 @@
                     <td><a href="index.html">Welcome</a></td>
                 </tr>
                 <tr>
-                    <td>Key_Value</td>
+                    <td><a href="keyvalue.html">Key_Value</a></td>
                 </tr>
                 <tr>
                     <td><a href="query.html">Query</a></td>
@@ -57,54 +53,54 @@
                 </tr>
             </table>
         </td>
-        <td>
-            <table border="1" style="width:100%">
+        <td style="width:100%">
+            <table style="width:100%" border="1">
                 <tr>
                     <td>
                         <form id="form" onsubmit="return setAction(this)">
-                            <table style="width:90%">
+                            <table style="width:100%">
                                 <tr>
-                                    <td style="width:20%">Query</td>
-                                    <td style="width:80%"></td>
+                                    <td style="width:10%">Query</td>
+                                    <td style="width:100%"></td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <label for="desc">Description</label>
                                     </td>
                                     <td>
-                                        <input type="text" id="desc" name="desc" placeholder="pool">
+                                        <input type="text" id="desc" name="desc" placeholder="pool" value="pool"/>
                                     </td>
+                                </tr>
                                 <tr>
                                     <td>
                                         <label for="location">Location</label>
                                     </td>
                                     <td>
-                                        <input type="text" id="location" name="location" placeholder="California">
+                                        <input type="text" id="location" name="location" placeholder="California"
+                                               value="California"/>
                                     </td>
+                                </tr>
                                 <tr>
                                     <td>
-                                    </td>
-                                    <td>
-                                        <input type="submit" value="Submit">
+                                        <input type="submit" value="Submit"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td style="color:white">.</td>
-                                    <td style="color:white">.</td>
+                                    <td style="width:100%">
+                                        <table border="1" style="width:100%">
+                                            <tr>
+                                                <td style="width:100%"><textarea style="width:99%" readonly rows="16"
+                                                                                 id="myoutput"></textarea></td>
+                                            </tr>
+                                        </table>
+                                    </td>
                                 </tr>
                             </table>
                         </form>
                     </td>
                 </tr>
             </table>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <nbsp></nbsp>
-        </td>
-        <td>
-            <nbsp></nbsp>
         </td>
     </tr>
 </table>

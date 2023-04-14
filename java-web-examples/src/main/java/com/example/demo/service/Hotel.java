@@ -5,6 +5,7 @@ import static com.couchbase.client.java.kv.LookupInSpec.get;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,13 +14,19 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.Scope;
+import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.kv.GetOptions;
+import com.couchbase.client.java.kv.GetResult;
 import com.couchbase.client.java.kv.LookupInResult;
+import com.couchbase.client.java.query.QueryOptions;
+import com.couchbase.client.java.query.QueryResult;
 import com.couchbase.client.java.search.SearchOptions;
 import com.couchbase.client.java.search.SearchQuery;
 import com.couchbase.client.java.search.queries.ConjunctionQuery;
 import com.couchbase.client.java.search.result.SearchResult;
 import com.couchbase.client.java.search.result.SearchRow;
 
+import com.example.demo.controller.Controller;
 import com.example.demo.model.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +40,52 @@ public class Hotel {
     private static final Logger LOGGER = LoggerFactory.getLogger(Hotel.class);
 
     private Bucket bucket;
+    private Cluster cluster;
 
     @Autowired
-    public Hotel(Bucket bucket) {
+    public Hotel(Cluster cluster, Bucket bucket) {
+        this.cluster = cluster;
         this.bucket = bucket;
     }
 
     /**
      * Search for a hotel in a particular location.
      */
-    public Result<List<Map<String, Object>>> findHotels(final Cluster cluster, final String location,
-                                                        final String description) {
+    public Result<List<Map<String, Object>>> findHotels(final String description,
+                                                        final String location) {
+
+        Scope scope = bucket.scope("samples");
+        StringBuffer queryString = new StringBuffer("SELECT name, address, city, country, state, description from hotel");
+        QueryOptions queryOptions = QueryOptions.queryOptions().metrics(true);
+        JsonObject parameters = JsonObject.create();
+        if( !empty(location) ) {
+            queryString.append(" WHERE ");
+            queryString.append("(contains(country, $location) or contains(state, $location) or contains(city, $location))");
+            parameters.put("$location",location);
+        }
+        if( !empty(description) ) {
+            queryString.append(empty(location) ? " WHERE " : " AND ");
+            queryString.append("contains(description, $description)");
+            parameters.put("$description",description);
+        }
+        queryOptions.parameters(parameters);
+        queryString.append(" limit 20");
+        QueryResult result = scope.query(queryString.toString(), queryOptions);
+
+        List<JsonObject> resultObjects = result.rowsAsObject();
+        List<Map<String, Object>> data = new LinkedList<Map<String, Object>>();
+        for (JsonObject obj : resultObjects) {
+            data.add(obj.toMap());
+        }
+
+        String querytype = "N1QL query - scoped to inventory: ";
+
+        if(1==1)
+            return Result.of(data, queryString+" "+parameters.toMap(),
+              "\n execution : "+result.metaData().metrics().get().executionTime().toMillis()+
+              "\n elapsed   : "+result.metaData().metrics().get().elapsedTime().toMillis());
+
+
         ConjunctionQuery fts = SearchQuery.conjuncts(SearchQuery.term("hotel").field("type"));
 
         if (location != null && !location.isEmpty() && !"*".equals(location)) {
@@ -64,24 +106,34 @@ public class Hotel {
 
         logQuery(fts.export().toString());
         SearchOptions opts = SearchOptions.searchOptions().limit(100);
-        SearchResult result = cluster.searchQuery("travel-sample.inventory.hotels-index", fts, opts);
+        SearchResult searchResult = cluster.searchQuery("travel-sample.samples.hotels-index", fts, opts);
 
         String queryType = "FTS search - scoped to: inventory.hotel within fields country, city, state, address, name, description";
-        return Result.of(extractResultOrThrow(result), queryType);
+        return Result.of(extractResultOrThrow(searchResult), queryType);
+    }
+
+
+    public Result<List<Map<String, Object>>> findHotelById(String id) {
+        Collection collection = bucket.scope("samples").collection("hotel");
+        GetResult result = collection.get(id, GetOptions.getOptions());
+        JsonObject resultObject = result.contentAsObject();
+        List<Map<String, Object>> data = new LinkedList<Map<String, Object>>();
+        data.add(resultObject.toMap());
+        return Result.of(data, "get"+" "+id);
     }
 
     /**
      * Search for an hotel.
      */
-    public Result<List<Map<String, Object>>> findHotels(final Cluster cluster, final String description) {
-        return findHotels(cluster, "*", description);
+    public Result<List<Map<String, Object>>> findHotels(final String description) {
+        return findHotels( description, "*");
     }
 
     /**
      * Find all hotels.
      */
-    public Result<List<Map<String, Object>>> findAllHotels(final Cluster cluster) {
-        return findHotels(cluster, "*", "*");
+    public Result<List<Map<String, Object>>> findAllHotels() {
+        return findHotels("*", "*");
     }
 
     /**
@@ -90,7 +142,7 @@ public class Hotel {
     private List<Map<String, Object>> extractResultOrThrow(SearchResult result) {
         if (result.metaData().metrics().errorPartitionCount() > 0) {
             LOGGER.warn("Query returned with errors: " + result.metaData().errors());
-            throw new DataRetrievalFailureException("Query error: " + result.metaData().errors());
+            throw new RuntimeException("Query error: " + result.metaData().errors());
         }
 
         List<Map<String, Object>> content = new ArrayList<Map<String, Object>>();
@@ -141,6 +193,10 @@ public class Hotel {
      */
     private static void logQuery(String query) {
         LOGGER.info("Executing FTS Query: {}", query);
+    }
+
+    private boolean empty(String s){
+        return s == null || s.length() == 0 || s.equals("*");
     }
 
 }

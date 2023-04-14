@@ -2,40 +2,7 @@
 
 <html lang="en">
 <script>
-    function callREST() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("response").innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", "http://localhost:8080/api/hotels/pool/California/", true);
-        xhttp.send();
-    }
 
-    function setAction(form) {
-        const url = 'http://localhost:8080/api/hotels/';
-        console.log("desc"+form.desc.value);
-        if( form.desc.value == "")
-            from.desc.value = "*";
-        if(form.location.value == "")
-            from.location.value = "*";
-
-        const newUrl = url + form.desc.value + '/' + form.location.value + '/';
-        fetch(
-            newUrl,
-            {
-                headers: {"Content-Type": "application/json"},
-                method: "GET",
-            }
-        )
-            .then(data => data.json())
-            .then((json) => {
-                alert(JSON.stringify(json));
-                document.getElementById("form").reset();
-            });
-        return false;
-    }
 </script>
 <head>
     <meta charset="UTF-8">
@@ -52,7 +19,7 @@
                     <td><a href="index.html">Welcome</a></td>
                 </tr>
                 <tr>
-                    <td>Key_Value</td>
+                    <td><a href="keyvalue.html">Key_Value</a></td>
                 </tr>
                 <tr>
                     <td><a href="query.html">Query</a></td>
@@ -88,10 +55,8 @@
     </tr>
     <tr>
         <td>
-            <nbsp></nbsp>
         </td>
         <td>
-            <nbsp></nbsp>
         </td>
     </tr>
 </table>
