@@ -106,7 +106,7 @@ public class Hotel {
 
         logQuery(fts.export().toString());
         SearchOptions opts = SearchOptions.searchOptions().limit(100);
-        SearchResult searchResult = cluster.searchQuery("travel-sample.samples.hotels-index", fts, opts);
+        SearchResult searchResult = cluster.searchQuery("travel-sample."+scope.name()+".hotels-index", fts, opts);
 
         String queryType = "FTS search - scoped to: inventory.hotel within fields country, city, state, address, name, description";
         return Result.of(extractResultOrThrow(searchResult), queryType);
