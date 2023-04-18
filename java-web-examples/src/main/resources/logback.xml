@@ -11,6 +11,6 @@
         <appender-ref ref="console"/>
     </root>
 
-    <logger name="com.couchbase" level="debug"/>"
+    <logger name="com.couchbase" level="info"/>"
 
 </configuration>
