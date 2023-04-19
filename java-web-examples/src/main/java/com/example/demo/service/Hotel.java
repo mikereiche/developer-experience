@@ -48,13 +48,14 @@ public class Hotel {
         this.bucket = bucket;
     }
 
+    @Autowired Scope scope;
+
     /**
      * Search for a hotel in a particular location.
      */
     public Result<List<Map<String, Object>>> findHotels(final String description,
                                                         final String location) {
 
-        Scope scope = bucket.scope("samples");
         StringBuffer queryString = new StringBuffer("SELECT name, address, city, country, state, description from hotel");
         QueryOptions queryOptions = QueryOptions.queryOptions().metrics(true);
         JsonObject parameters = JsonObject.create();
@@ -114,7 +115,7 @@ public class Hotel {
 
 
     public Result<List<Map<String, Object>>> findHotelById(String id) {
-        Collection collection = bucket.scope("samples").collection("hotel");
+        Collection collection = scope.collection("hotel");
         GetResult result = collection.get(id, GetOptions.getOptions());
         JsonObject resultObject = result.contentAsObject();
         List<Map<String, Object>> data = new LinkedList<Map<String, Object>>();

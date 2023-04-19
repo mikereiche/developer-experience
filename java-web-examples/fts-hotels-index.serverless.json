@@ -2,46 +2,45 @@
   "name": "hotels-index",
   "type": "fulltext-index",
   "params": {
-    "doc_config": {
-      "docid_prefix_delim": "",
-      "docid_regexp": "",
-      "mode": "scope.collection.type_field",
-      "type_field": "type"
-    },
     "mapping": {
+      "types": {
+        "samples.hotel": { // scope.collection
+          "enabled": true,
+          "dynamic": true
+        }
+      },
+      "default_mapping": {
+        "enabled": false,
+        "dynamic": true
+      },
+      "default_type": "_default",
       "default_analyzer": "standard",
       "default_datetime_parser": "dateTimeOptional",
       "default_field": "_all",
-      "default_mapping": {
-        "dynamic": false,
-        "enabled": false
-      },
-      "default_type": "_default",
-      "docvalues_dynamic": true,
+      "store_dynamic": false,
       "index_dynamic": true,
-      "store_dynamic": true,
-      "type_field": "_type",
-      "types": {
-        "samples.hotel": {
-          "default_analyzer": "standard",
-          "dynamic": true,
-          "enabled": true
-        }
-      }
+      "docvalues_dynamic": false
     },
     "store": {
       "indexType": "scorch",
-      "segmentVersion": 15
+      "kvStoreName" : ""
+    },
+    "doc_config": {
+      "mode": "scope.collection.type_field",
+      "type_field": "type",
+      "docid_prefix_delim": "",
+      "docid_regexp": ""
     }
   },
-  "sourceType": "gocbcore",
-  "sourceName": "daniel-wucmmhn",
-  "sourceUUID": "",
   "sourceParams": {},
   "planParams": {
     "maxPartitionsPerPIndex": 1024,
     "indexPartitions": 1,
     "numReplicas": 0
   },
-  "uuid": ""
+  "sourceType": "couchbase",
+  "sourceName": "daniel-wucmmh", // bucket
+  "sourceUUID": "",
+  "uuid": "",
+  "id": ""
 }

@@ -1,0 +1,6 @@
+.idea
+.gitignore
+java-web-examples/target
+java-examples/target
+nodejs-examples/target
+nodejs-examples/node_modules
