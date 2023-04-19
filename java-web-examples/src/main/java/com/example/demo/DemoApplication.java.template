@@ -15,12 +15,11 @@
  */
 package com.example.demo;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.time.Duration;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,44 +37,42 @@ import com.couchbase.client.java.env.ClusterEnvironment;
 @RequestMapping("")
 public class DemoApplication {
 
-	static String endpoint = "cb.daniel-wucmmh.sdk.cloud.couchbase.com"; // "cb.zsibzkbgllfbcj8g.cloud.couchbase.com";
-	static String bucketName = "daniel-wucmmh";
-	static String username = "qqulmR419fhfiEHFABFvinSXHzJRRjoU";
-	static String password = "o@cpPMlRjswkuwKNsqzJHXK2v4HJaKeeu%a1ZCI%750bKDuXfcf9NMo!2cABNqCe";
-  static String scopeName = "samples";
-	static boolean tlsEnabled = true;
+  static String bucketName = "<bucketname>";
+  static String scopeName = "<scopename>";
+  static boolean tlsEnabled = true;
 
-
-	@Bean
-	Bucket getBucket(Cluster cluster){
-		return cluster.bucket(bucketName);
-	}
+  @Bean
+  Bucket getBucket(Cluster cluster){
+    return cluster.bucket(bucketName);
+  }
 
   @Bean
   Scope getScope(Bucket bucket) {
     return bucket.scope(scopeName);
   }
-	@Bean
-	Cluster getCluster(){
-		ClusterEnvironment env = ClusterEnvironment.builder()
-			.securityConfig(sc -> sc.enableTls(tlsEnabled))
-			.ioConfig(ioc -> ioc.enableDnsSrv(true))
-			//.loggerConfig(l -> l.consoleLogLevel(Level.ALL))
-			//.loggerConfig( l -> l.fallbackToConsole(true))
-			//.loggerConfig( l ->l.disableSlf4J(true))
-			.build();
+  @Bean
+  Cluster getCluster(){
 
-		// Initialize the Connection
-		return Cluster.connect(
-			"couchbases://"+"cb.daniel-wucmmh.sdk.cloud.couchbase.com",
-			ClusterOptions.clusterOptions(
-				"qqulmR419fhfiEHFABFvinSXHzJRRjoU",
-				"o@cpPMlRjswkuwKNsqzJHXK2v4HJaKeeu%a1ZCI%750bKDuXfcf9NMo!2cABNqCe")
-				.environment(env));
-	}
+    ClusterEnvironment env = ClusterEnvironment.builder()
+      .securityConfig(sc -> sc.enableTls(tlsEnabled))
+      .ioConfig(ioc -> ioc.enableDnsSrv(true))
+      .thresholdLoggingTracerConfig(thresholdConfig -> thresholdConfig.emitInterval(Duration.ofSeconds(10))
+        .kvThreshold(Duration.ofSeconds(2))
+        .queryThreshold(Duration.ofSeconds(4))
+        .searchThreshold(Duration.ofSeconds(4)))
+      .applyProfile("wan-development")
+      .build();
 
-	public static void main(String[] args) {
- 		SpringApplication.run( DemoApplication.class, args );
-	}
+    // Initialize the Connection
+    return Cluster.connect(
+        "couchbases://" + "<connection-host-name>",
+      ClusterOptions.clusterOptions(
+            "<user/api-key>", "<password/secret-key>")
+        .environment(env));
+  }
+
+  public static void main(String[] args) {
+     SpringApplication.run( DemoApplication.class, args );
+  }
 
 }

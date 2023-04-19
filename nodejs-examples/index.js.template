@@ -14,24 +14,23 @@ const swaggerDocument = require('./swagger.json')
 // Specify a key for JWT signing.
 var JWT_KEY = 'IAMSOSECRETIVE!'
 
+var scopename = "<scopename>"
+
 // Create a Couchbase Cluster connection
-const CB = {
-  host: process.env.CB_HOST || 'db',
-  username: process.env.CB_USER || 'Administrator',
-  password: process.env.CB_PASS || 'password'
-}
 
 async function main() {
   var cluster = await couchbase.connect(
-    `couchbases://${CB.host}`,
+    `couchbases://<connection-hostname>`,
     {
-      username: CB.username,
-      password: CB.password
+      username: '<user>',
+      password: '<password>',
+      tracing_threshold_kv: 2.0,
+      tracing_threshold_query: 4.0
     }
   )
 
-    // Open a specific Couchbase bucket, `travel-sample` in this case.
-    var bucket = cluster.bucket('travel-sample')
+    // Open a specific Couchbase bucket
+    var bucket = cluster.bucket('<bucketname>')
 
     // Set up our express application
     var app = express()
@@ -339,9 +338,8 @@ async function main() {
 
   app.get('/api/hotels/byid/:id?',
     runAsync(async (req, res) => {
-      console.log('byid' || req.params )
       const id = req.params.id
-      var scope = bucket.scope("inventory")
+      var scope = bucket.scope(scopename)
       var hotels = scope.collection("hotel")
 
       const ids = [id]
@@ -357,7 +355,6 @@ async function main() {
         'description',
         ...addressCols
         ]
-    console.log('Promise.all()!' || ids )
       const results = await Promise.all( 
           ids.map(
             async id  => {
@@ -399,7 +396,7 @@ async function main() {
     runAsync(async (req, res) => {
       const description = req.params.description
       const location = req.params.location
-      var scope = bucket.scope("inventory")
+      var scope = bucket.scope(scopename)
       var hotels = scope.collection("hotel")
       const qp = couchbase.SearchQuery.conjuncts([
         couchbase.SearchQuery.term('hotel').field('type'),
@@ -487,7 +484,7 @@ async function main() {
   })
 
   app.listen(8080, () => {
-    console.log(`Connecting to backend Couchbase server ${CB.host} with ${CB.username}/${CB.password}`)
+    console.log(`Connecting to backend Couchbase server scope=`+scopename)
     console.log('Example app listening on port 8080!')
   })
 }
