@@ -27,8 +27,9 @@ mvn spring-boot:run
 cd developer-experience/java-examples  
 vi src/main/java/com/examples/demo/ConnectExample.java
 
-### Execute 
+### Compile and Execute 
 
-mvn java:exec
+mvn compile   
+mvn exec:java
 
 
