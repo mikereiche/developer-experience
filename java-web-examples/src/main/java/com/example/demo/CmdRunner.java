@@ -15,15 +15,8 @@
  */
 package com.example.demo;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import com.example.demo.model.Result;
-import com.example.demo.service.Hotel;
 
 /**
  * Components of the type CommandLineRunner are called right after the application start up. So the method *run* is
@@ -34,26 +27,9 @@ import com.example.demo.service.Hotel;
 @Component
 public class CmdRunner implements CommandLineRunner {
 
-  @Autowired
-  Hotel hotelService;
-
 	@Override
 	public void run(String... strings) {
 
-    Result<List<Map<String, Object>>> hotels = null;
-
-    try {
-      hotels = hotelService.findHotels("Camp", "California");
-    } catch (Exception e) {
-      System.err.println(e);
-    }
-    if( hotels != null) {
-      for (Map hotel : hotels.getData()) {
-        System.err.println("Hotels: " + hotel);
-      }
-    }
-
 	}
 
-	static class SimulateErrorException extends RuntimeException {}
 }
