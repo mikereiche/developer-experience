@@ -39,40 +39,41 @@ public class DemoApplication {
 
   static String bucketName = "<bucketname>";
   static String scopeName = "<scopename>";
-	static boolean tlsEnabled = true;
+  static boolean tlsEnabled = true;
 
-	@Bean
-	Bucket getBucket(Cluster cluster){
-		return cluster.bucket(bucketName);
-	}
+  @Bean
+  Bucket getBucket(Cluster cluster){
+    return cluster.bucket(bucketName);
+  }
 
   @Bean
   Scope getScope(Bucket bucket) {
     return bucket.scope(scopeName);
   }
-	@Bean
-	Cluster getCluster(){
 
-		ClusterEnvironment env = ClusterEnvironment.builder()
-			.securityConfig(sc -> sc.enableTls(tlsEnabled))
-			.ioConfig(ioc -> ioc.enableDnsSrv(true))
-			.thresholdLoggingTracerConfig(thresholdConfig -> thresholdConfig.emitInterval(Duration.ofSeconds(10))
-				.kvThreshold(Duration.ofSeconds(2))
-				.queryThreshold(Duration.ofSeconds(4))
-				.searchThreshold(Duration.ofSeconds(4)))
-			.applyProfile("wan-development")
-			.build();
+  @Bean
+  Cluster getCluster(){
 
-		// Initialize the Connection
-		return Cluster.connect(
+    ClusterEnvironment env = ClusterEnvironment.builder()
+      .securityConfig(sc -> sc.enableTls(tlsEnabled))
+      .ioConfig(ioc -> ioc.enableDnsSrv(true))
+      .thresholdLoggingTracerConfig(thresholdConfig -> thresholdConfig.emitInterval(Duration.ofSeconds(10))
+        .kvThreshold(Duration.ofSeconds(2))
+        .queryThreshold(Duration.ofSeconds(4))
+        .searchThreshold(Duration.ofSeconds(4)))
+      .applyProfile("wan-development")
+      .build();
+
+    // Initialize the Connection
+    return Cluster.connect(
         "couchbases://" + "<connection-host-name>",
-			ClusterOptions.clusterOptions(
+      ClusterOptions.clusterOptions(
             "<user/api-key>", "<password/secret-key>")
-				.environment(env));
-	}
+        .environment(env));
+  }
 
-	public static void main(String[] args) {
- 		SpringApplication.run( DemoApplication.class, args );
-	}
+  public static void main(String[] args) {
+     SpringApplication.run( DemoApplication.class, args );
+  }
 
 }

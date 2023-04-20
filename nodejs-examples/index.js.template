@@ -20,15 +20,17 @@ var scopename = "<scopename>"
 
 async function main() {
   var cluster = await couchbase.connect(
-    `couchbases://<connection-hostname>?tracing_threshold_kv=2.0&?tracing_threshold_query=4.0`,
+    `couchbases://<connection-hostname>`,
     {
       username: '<user>',
-      password: '<password>'
+      password: '<password>',
+      tracing_threshold_kv: 2.0,
+      tracing_threshold_query: 4.0
     }
   )
 
-    // Open a specific Couchbase bucket, `travel-sample` in this case.
-    var bucket = cluster.bucket('travel-sample')
+    // Open a specific Couchbase bucket
+    var bucket = cluster.bucket('<bucketname>')
 
     // Set up our express application
     var app = express()
