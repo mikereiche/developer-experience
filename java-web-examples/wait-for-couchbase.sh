@@ -30,7 +30,7 @@ fi
 # (see bottom of file for the calling script)
 
 log() {
-  echo "wait-for-couchbase: $@" | cut -c -${COLUMNS:-80}
+  echo "wait-for-couchbase: $@"
 }
 
 wait-for-one() {
@@ -82,7 +82,7 @@ wait-for() {
 
 function createHotelsIndex() {
   log "Creating hotels-index..."
-  http_code=$(curl -o hotel-index.out -w '%{http_code}' -s -u ${CB_USER}:${CB_PSWD} -X PUT \
+  http_code=$(curl -k -o hotel-index.out -w '%{http_code}' -s -u ${CB_USER}:${CB_PSWD} -X PUT \
     https://${CB_HOST}:${SSL_PORT_PREFIX}8094/api/index/hotels-index \
     -H 'cache-control: no-cache' \
     -H 'content-type: application/json' \
@@ -120,7 +120,7 @@ fi
 wait-for $ATTEMPTS \
   ":${SSL_PORT_PREFIX}9102/api/v1/stats" \
   '.indexer.indexer_state == "Active"' \
-  ". | keys | contains([\"${CB_BUKT}:${CB_SCOP}:airline:def_${CB_SCOP}_airline_primary\", \"${CB_BUKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_airportname\", \"${CB_BUKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_faa\", \"${CB_BUKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_primary\", \"${CB_BUKT}:${CB_SCOP}:hotel:def_${CB_SCOP}_hotel_city\", \"${CB_BUKT}:${CB_SCOP}:hotel:def_${CB_SCOP}_hotel_primary\", \"${CB_BUKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_primary\", \"${CB_BUKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_route_src_dst_day\", \"${CB_BUKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_sourceairport\"])" \
+  ". | keys | contains([ \"${CB_BUCKT}:${CB_SCOP}:airline:def_${CB_SCOP}_airline_primary\", \"${CB_BUCKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_airportname\", \"${CB_BUCKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_faa\", \"${CB_BUCKT}:${CB_SCOP}:airport:def_${CB_SCOP}_airport_primary\", \"${CB_BUCKT}:${CB_SCOP}:hotel:def_${CB_SCOP}_hotel_city\", \"${CB_BUCKT}:${CB_SCOP}:landmark:def_${CB_SCOP}_landmark_primary\", \"${CB_BUCKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_primary\", \"${CB_BUCKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_route_src_dst_day\", \"${CB_BUCKT}:${CB_SCOP}:route:def_${CB_SCOP}_route_schedule_utc\" ])" \
   ". | del(.indexer) | del(.[\"${CB_BUKT}:def_${CB_SCOP}_name_type\"]) | map(.items_count > 0) | all" \
   '. | del(.indexer) | map(.num_pending_requests == 0) | all'
 

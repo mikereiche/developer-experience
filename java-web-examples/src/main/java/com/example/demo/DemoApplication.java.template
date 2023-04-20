@@ -50,6 +50,7 @@ public class DemoApplication {
   Scope getScope(Bucket bucket) {
     return bucket.scope(scopeName);
   }
+
   @Bean
   Cluster getCluster(){
 
